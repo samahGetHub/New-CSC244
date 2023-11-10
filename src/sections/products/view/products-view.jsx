@@ -1,10 +1,7 @@
 import Axios from "axios";
 import { useState,useEffect } from 'react';
 
-import { Box } from '@mui/system';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
+// import { Box } from '@mui/system';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
@@ -12,8 +9,13 @@ import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import TableBody from '@mui/material/TableBody';
 import Typography from '@mui/material/Typography';
+// import DialogTitle from '@mui/material/DialogTitle';
+// import DialogContent from '@mui/material/DialogContent';
 import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
+// import DialogContentText from '@mui/material/DialogContentText';
+
+
 
 // {import { users } from 'src/_mock/user';}
 
@@ -156,50 +158,6 @@ import { emptyRows, applyFilter, getComparator } from 'src/sections/user/utils';
         </Button>
         
       </Stack>
-
-    <div>
-     <Dialog open={openNew} onClose={handleClickCloseNew}>
-                         <DialogTitle><span style={{paddingRight:'10px'}}><FaPlus/></span>New Battery Details</DialogTitle>
-                         <DialogContent>
-                         <DialogContentText>
-                              Add New battery details here.
-                         </DialogContentText>
-
-                         <Box component="form" sx={{'& .MuiTextField-root': { m: 1, width: '40ch', backgroundColor:'#fff' }, paddingLeft:'0px', '& .MuiButton-root':{backgroundColor: '#0fa153'}}} noValidate autoComplete="off">
-                             <div>
-                                 <TextField required error={serialNumber !== null && serialNumber !== '' ? false : true} id="serialNumber" variant='outlined' label="Product Serial Number" defaultValue="" value={serialNumber} onChange={e => setSerialNumber(e.target.value)}/>
-                             </div>
-                             <div>
-                                 <TextField required error={partNumber !== null && partNumber !== '' ? false : true} id="partNumber" variant='outlined' label="Part Number" defaultValue="" value={partNumber} onChange={e => {setPartNumber(e.target.value); setDirty(true);}}/>
-                             </div>
-                             <div>
-                                 <TextField required error={co2 !== null && co2 !== '' ? false : true} id="co2" variant='outlined' label="Co2 Emitted" defaultValue="" value={co2} onChange={e =>{setCO2(e.target.value); setDirty(true);}  }/>
-                             </div>
-                             <div>
-                                 <TextField required error={costManufactured !== null && costManufactured !== '' ? false : true} id="costManufactured" variant='outlined' label="Cost of Manufacture ($)" type="number" defaultValue="" value={costManufactured} onChange={e => {setCostManufactured(e.target.value); setDirty(true)}}/>
-                             </div>
-                             <div>
-                                 <TextField InputLabelProps={{ shrink: true }} required error={dateManufactured !== null && dateManufactured !== '' ? false : true} id="dateManufactured" variant='outlined' type="date" label="Date Manufactured" value={dateManufactured} onChange={e => {setDateManufactured(e.target.value); setDirty(true);}}/>
-                                 {/* <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                     <DatePicker dateFormat="MM/dd/yyyy" label="Date Manufactured" value={dateManufactured} onChange={(newVal) => setDateManufactured(newVal)} renderInput={(params) => <TextField {...params} />}/>
-                                 </LocalizationProvider> */}
-                             </div>
-                             <div>
-                                 <TextField required error={salesPrice !== null && salesPrice !== '' ? false : true} id="salesPrice" variant='outlined' label="Sales Price ($)" type="number" defaultValue="" value={salesPrice} onChange={e => {setSalesPrice(e.target.value); setDirty(true);}}/>
-                             </div>
-                         </Box>
-                         </DialogContent>
-                         <DialogActions>
-                             <Button onClick={handleClickCloseNew} style={{color:'#fff', backgroundColor:'#004e38', border:'0.5px solid #004e38'}}>Cancel</Button>
-                             <Button onClick={handleClickSubmit} style={{color:'#fff', backgroundColor:'#004e38', border:'0.5px solid #004e38'}}>Submit</Button>
-                         </DialogActions>
-                     </Dialog>
-
-
-
-
-     </div>
-
 
       <Card>
         <UserTableToolbar
