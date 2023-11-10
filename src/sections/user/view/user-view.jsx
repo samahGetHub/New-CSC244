@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import Axios from "axios";
+import { useState,useEffect } from 'react';
 
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
@@ -10,7 +11,7 @@ import Typography from '@mui/material/Typography';
 import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
 
-import { users } from 'src/_mock/user';
+// {import { users } from 'src/_mock/user';}
 
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
@@ -24,7 +25,29 @@ import { emptyRows, applyFilter, getComparator } from '../utils';
 
 // ----------------------------------------------------------------------
 
-export default function UserPage() {
+ export default function UserPage() {
+   const [data, setData] = useState([]);
+   const fetchData = async () => {
+     try {
+       const response = await Axios.get("http://localhost:8000/orders");
+      setData(response.data.Items);
+    } catch (error) {
+      console.log(error);
+    }
+   };
+  
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+//  const [data, setData]= useState([]);
+  
+//  const getData= async()=>{
+//    const response= await Axios.get("http://localhost:8000/orders");
+//      setData(response.data);
+//  }
+//   useEffect(()=>{ getData()},[]);
+
   const [page, setPage] = useState(0);
 
   const [order, setOrder] = useState('asc');
@@ -47,7 +70,7 @@ export default function UserPage() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = users.map((n) => n.name);
+      const newSelecteds = data.map((n) => n.name);
       setSelected(newSelecteds);
       return;
     }
@@ -87,21 +110,47 @@ export default function UserPage() {
   };
 
   const dataFiltered = applyFilter({
-    inputData: users,
+    inputData: data,
     comparator: getComparator(order, orderBy),
     filterName,
   });
 
+ // const dataFiltered = applyFilter({
+ //   inputData: users,
+ //   comparator: getComparator(order, orderBy),
+  //  filterName,
+ // });
+
   const notFound = !dataFiltered.length && !!filterName;
+/* new code 
+  const items = data.Items;
+
+  // Iterate over the 'Items' array
+  items.forEach((item) => {
+    const customerId = item.customer_id;
+    const customerState = item.customer_state;
+    const customerCity = item.customer_city;
+    const customerZipCodePrefix = item.customer_zip_code_prefix;
+    const customerUniqueId = item.customer_unique_id;
+  
+    // Do something with the customer data
+    console.log(`Customer ID: ${customerId}`);
+    console.log(`Customer State: ${customerState}`);
+    console.log(`Customer City: ${customerCity}`);
+    console.log(`Customer Zip Code Prefix: ${customerZipCodePrefix}`);
+    console.log(`Customer Unique ID: ${customerUniqueId}`);
+  }); */
 
   return (
     <Container>
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-        <Typography variant="h4">Users</Typography>
+      
+        <Typography variant="h4">Users </Typography> 
 
         <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />}>
           New User
         </Button>
+        
       </Stack>
 
       <Card>
@@ -112,36 +161,42 @@ export default function UserPage() {
         />
 
         <Scrollbar>
+         
           <TableContainer sx={{ overflow: 'unset' }}>
             <Table sx={{ minWidth: 800 }}>
               <UserTableHead
                 order={order}
                 orderBy={orderBy}
-                rowCount={users.length}
+                
+                rowCount={dataFiltered.length} // {rowCount={users.length}}
                 numSelected={selected.length}
                 onRequestSort={handleSort}
                 onSelectAllClick={handleSelectAllClick}
                 headLabel={[
-                  { id: 'name', label: 'Name' },
-                  { id: 'company', label: 'Company' },
-                  { id: 'role', label: 'Role' },
-                  { id: 'isVerified', label: 'Verified', align: 'center' },
-                  { id: 'status', label: 'Status' },
+                 // { id: 'customer_id', label: 'Customer id' },
+                  { id: 'customer_unique_id', label: 'Customer unique id' },
+                  { id: "customer_zip_code_prefix", label: 'Zip_code', align: 'center' },
+                  { id: 'customer_state', label: 'Customer state' },
+                  { id: 'customer_city', label: 'Customer city' },
+                  
                   { id: '' },
                 ]}
               />
               <TableBody>
+              
                 {dataFiltered
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row) => (
                     <UserTableRow
-                      key={row.id}
-                      name={row.name}
-                      role={row.role}
-                      status={row.status}
-                      company={row.company}
-                      avatarUrl={row.avatarUrl}
-                      isVerified={row.isVerified}
+                      key={row.customer_id}
+                      name={row.customer_unique_id}
+                      role={row.customer_state}
+                     // status={row.customer_city}
+                    //  company={row.customer_zip_code_prefix}
+                     // avatarUrl={row.avatarUrl}
+                    //   isVerified={row.isVerified}
+                       isVerified={row.customer_city}
+                       company={row.customer_zip_code_prefix}
                       selected={selected.indexOf(row.name) !== -1}
                       handleClick={(event) => handleClick(event, row.name)}
                     />
@@ -149,7 +204,7 @@ export default function UserPage() {
 
                 <TableEmptyRows
                   height={77}
-                  emptyRows={emptyRows(page, rowsPerPage, users.length)}
+                  emptyRows={emptyRows(page, rowsPerPage, data.length)}
                 />
 
                 {notFound && <TableNoData query={filterName} />}
@@ -161,7 +216,7 @@ export default function UserPage() {
         <TablePagination
           page={page}
           component="div"
-          count={users.length}
+          count={dataFiltered.length}
           rowsPerPage={rowsPerPage}
           onPageChange={handleChangePage}
           rowsPerPageOptions={[5, 10, 25]}

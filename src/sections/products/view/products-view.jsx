@@ -1,63 +1,286 @@
-import { useState } from 'react';
+import Axios from "axios";
+import { useState,useEffect } from 'react';
 
+import { Box } from '@mui/system';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
+import Table from '@mui/material/Table';
+import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
-import Grid from '@mui/material/Unstable_Grid2';
+import TableBody from '@mui/material/TableBody';
 import Typography from '@mui/material/Typography';
+import TableContainer from '@mui/material/TableContainer';
+import TablePagination from '@mui/material/TablePagination';
 
-import { products } from 'src/_mock/products';
+// {import { users } from 'src/_mock/user';}
 
-import ProductCard from '../product-card';
-import ProductSort from '../product-sort';
-import ProductFilters from '../product-filters';
-import ProductCartWidget from '../product-cart-widget';
+import Iconify from 'src/components/iconify';
+import Scrollbar from 'src/components/scrollbar';
+
+import TableNoData from 'src/sections/user/table-no-data';
+import UserTableRow from 'src/sections/user/user-table-row';
+import UserTableHead from 'src/sections/user/user-table-head';
+import TableEmptyRows from 'src/sections/user/table-empty-rows';
+import UserTableToolbar from 'src/sections/user/user-table-toolbar';
+import { emptyRows, applyFilter, getComparator } from 'src/sections/user/utils';
 
 // ----------------------------------------------------------------------
 
-export default function ProductsView() {
-  const [openFilter, setOpenFilter] = useState(false);
+ export default function UserPage() {
+   const [data, setData] = useState([]);
+   const fetchData = async () => {
+     try {
+       const response = await Axios.get("http://localhost:8000/reviews");
+      setData(response.data.Items);
+    } catch (error) {
+      console.log(error);
+    }
+   };
+  
+  useEffect(() => {
+    fetchData();
+  }, []);
 
-  const handleOpenFilter = () => {
-    setOpenFilter(true);
+//  const [data, setData]= useState([]);
+  
+//  const getData= async()=>{
+//    const response= await Axios.get("http://localhost:8000/orders");
+//      setData(response.data);
+//  }
+//   useEffect(()=>{ getData()},[]);
+
+  const [page, setPage] = useState(0);
+
+  const [order, setOrder] = useState('asc');
+
+  const [selected, setSelected] = useState([]);
+
+  const [orderBy, setOrderBy] = useState('name');
+
+  const [filterName, setFilterName] = useState('');
+
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+
+  const handleSort = (event, id) => {
+    const isAsc = orderBy === id && order === 'asc';
+    if (id !== '') {
+      setOrder(isAsc ? 'desc' : 'asc');
+      setOrderBy(id);
+    }
   };
 
-  const handleCloseFilter = () => {
-    setOpenFilter(false);
+  const handleSelectAllClick = (event) => {
+    if (event.target.checked) {
+      const newSelecteds = data.map((n) => n.name);
+      setSelected(newSelecteds);
+      return;
+    }
+    setSelected([]);
   };
+
+  const handleClick = (event, name) => {
+    const selectedIndex = selected.indexOf(name);
+    let newSelected = [];
+    if (selectedIndex === -1) {
+      newSelected = newSelected.concat(selected, name);
+    } else if (selectedIndex === 0) {
+      newSelected = newSelected.concat(selected.slice(1));
+    } else if (selectedIndex === selected.length - 1) {
+      newSelected = newSelected.concat(selected.slice(0, -1));
+    } else if (selectedIndex > 0) {
+      newSelected = newSelected.concat(
+        selected.slice(0, selectedIndex),
+        selected.slice(selectedIndex + 1)
+      );
+    }
+    setSelected(newSelected);
+  };
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setPage(0);
+    setRowsPerPage(parseInt(event.target.value, 10));
+  };
+
+  const handleFilterByName = (event) => {
+    setPage(0);
+    setFilterName(event.target.value);
+  };
+
+  const dataFiltered = applyFilter({
+    inputData: data,
+    comparator: getComparator(order, orderBy),
+    filterName,
+  });
+
+ // const dataFiltered = applyFilter({
+ //   inputData: users,
+ //   comparator: getComparator(order, orderBy),
+  //  filterName,
+ // });
+
+  const notFound = !dataFiltered.length && !!filterName;
+/* new code 
+  const items = data.Items;
+
+  // Iterate over the 'Items' array
+  items.forEach((item) => {
+    const customerId = item.customer_id;
+    const customerState = item.customer_state;
+    const customerCity = item.customer_city;
+    const customerZipCodePrefix = item.customer_zip_code_prefix;
+    const customerUniqueId = item.customer_unique_id;
+  
+    // Do something with the customer data
+    console.log(`Customer ID: ${customerId}`);
+    console.log(`Customer State: ${customerState}`);
+    console.log(`Customer City: ${customerCity}`);
+    console.log(`Customer Zip Code Prefix: ${customerZipCodePrefix}`);
+    console.log(`Customer Unique ID: ${customerUniqueId}`);
+  }); */
 
   return (
     <Container>
-      <Typography variant="h4" sx={{ mb: 5 }}>
-        Products
-      </Typography>
+      <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
+      
+        <Typography variant="h4">Reviews </Typography>
 
-      <Stack
-        direction="row"
-        alignItems="center"
-        flexWrap="wrap-reverse"
-        justifyContent="flex-end"
-        sx={{ mb: 5 }}
-      >
-        <Stack direction="row" spacing={1} flexShrink={0} sx={{ my: 1 }}>
-          <ProductFilters
-            openFilter={openFilter}
-            onOpenFilter={handleOpenFilter}
-            onCloseFilter={handleCloseFilter}
-          />
-
-          <ProductSort />
-        </Stack>
+        <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />}>
+          Add Review
+        </Button>
+        
       </Stack>
 
-      <Grid container spacing={3}>
-        {products.map((product) => (
-          <Grid key={product.id} xs={12} sm={6} md={3}>
-            <ProductCard product={product} />
-          </Grid>
-        ))}
-      </Grid>
+    <div>
+     <Dialog open={openNew} onClose={handleClickCloseNew}>
+                         <DialogTitle><span style={{paddingRight:'10px'}}><FaPlus/></span>New Battery Details</DialogTitle>
+                         <DialogContent>
+                         <DialogContentText>
+                              Add New battery details here.
+                         </DialogContentText>
 
-      <ProductCartWidget />
+                         <Box component="form" sx={{'& .MuiTextField-root': { m: 1, width: '40ch', backgroundColor:'#fff' }, paddingLeft:'0px', '& .MuiButton-root':{backgroundColor: '#0fa153'}}} noValidate autoComplete="off">
+                             <div>
+                                 <TextField required error={serialNumber !== null && serialNumber !== '' ? false : true} id="serialNumber" variant='outlined' label="Product Serial Number" defaultValue="" value={serialNumber} onChange={e => setSerialNumber(e.target.value)}/>
+                             </div>
+                             <div>
+                                 <TextField required error={partNumber !== null && partNumber !== '' ? false : true} id="partNumber" variant='outlined' label="Part Number" defaultValue="" value={partNumber} onChange={e => {setPartNumber(e.target.value); setDirty(true);}}/>
+                             </div>
+                             <div>
+                                 <TextField required error={co2 !== null && co2 !== '' ? false : true} id="co2" variant='outlined' label="Co2 Emitted" defaultValue="" value={co2} onChange={e =>{setCO2(e.target.value); setDirty(true);}  }/>
+                             </div>
+                             <div>
+                                 <TextField required error={costManufactured !== null && costManufactured !== '' ? false : true} id="costManufactured" variant='outlined' label="Cost of Manufacture ($)" type="number" defaultValue="" value={costManufactured} onChange={e => {setCostManufactured(e.target.value); setDirty(true)}}/>
+                             </div>
+                             <div>
+                                 <TextField InputLabelProps={{ shrink: true }} required error={dateManufactured !== null && dateManufactured !== '' ? false : true} id="dateManufactured" variant='outlined' type="date" label="Date Manufactured" value={dateManufactured} onChange={e => {setDateManufactured(e.target.value); setDirty(true);}}/>
+                                 {/* <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                     <DatePicker dateFormat="MM/dd/yyyy" label="Date Manufactured" value={dateManufactured} onChange={(newVal) => setDateManufactured(newVal)} renderInput={(params) => <TextField {...params} />}/>
+                                 </LocalizationProvider> */}
+                             </div>
+                             <div>
+                                 <TextField required error={salesPrice !== null && salesPrice !== '' ? false : true} id="salesPrice" variant='outlined' label="Sales Price ($)" type="number" defaultValue="" value={salesPrice} onChange={e => {setSalesPrice(e.target.value); setDirty(true);}}/>
+                             </div>
+                         </Box>
+                         </DialogContent>
+                         <DialogActions>
+                             <Button onClick={handleClickCloseNew} style={{color:'#fff', backgroundColor:'#004e38', border:'0.5px solid #004e38'}}>Cancel</Button>
+                             <Button onClick={handleClickSubmit} style={{color:'#fff', backgroundColor:'#004e38', border:'0.5px solid #004e38'}}>Submit</Button>
+                         </DialogActions>
+                     </Dialog>
+
+
+
+
+     </div>
+
+
+      <Card>
+        <UserTableToolbar
+          numSelected={selected.length}
+          filterName={filterName}
+          onFilterName={handleFilterByName}
+        />
+
+        <Scrollbar>
+         
+          <TableContainer sx={{ overflow: 'unset' }}>
+            <Table sx={{ minWidth: 800 }}>
+              <UserTableHead
+                order={order}
+                orderBy={orderBy}
+                
+                rowCount={dataFiltered.length} // {rowCount={users.length}}
+                numSelected={selected.length}
+                onRequestSort={handleSort}
+                onSelectAllClick={handleSelectAllClick}
+                headLabel={[
+                 // { id: 'customer_id', label: 'Customer id' },
+                  { id: 'order_id', label: 'Order id' },
+                  { id: "review_creation_date", label: 'Review creation date' },
+                  { id: 'review_answer_timestamp', label: 'Review answer timestamp' },
+                  { id: 'review_comment_message', label: 'Review message' },
+                  { id: 'review_comment_title', label: 'Review comment title' },
+                  { id: 'review_id', label: 'Review id' },
+                  { id: 'review_score', label: 'Review score' },
+
+                  
+                  { id: '' },
+                ]}
+              />
+              <TableBody>
+              
+                {dataFiltered
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((row) => (
+                    <UserTableRow
+                     // key={row.order_id}
+                      name={row.order_id} // review_creation_date
+                      company={row.review_creation_date}
+                      role={row.review_answer_timestamp}
+
+                    //  company={row.customer_zip_code_prefix}
+                     // avatarUrl={row.avatarUrl}
+                    //   isVerified={row.isVerified}
+                       isVerified={row.review_comment_message}
+                       Title ={row.review_comment_title}
+                       reviewId= {row.review_id}
+                     //  company={row.review_id}
+                        status={row.review_score}
+
+
+                      selected={selected.indexOf(row.name) !== -1}
+                      handleClick={(event) => handleClick(event, row.name)}
+                    />
+                  ))}
+
+                <TableEmptyRows
+                  height={77}
+                  emptyRows={emptyRows(page, rowsPerPage, data.length)}
+                />
+
+                {notFound && <TableNoData query={filterName} />}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Scrollbar>
+
+        <TablePagination
+          page={page}
+          component="div"
+          count={dataFiltered.length}
+          rowsPerPage={rowsPerPage}
+          onPageChange={handleChangePage}
+          rowsPerPageOptions={[5, 10, 25]}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
+      </Card>
     </Container>
   );
 }
