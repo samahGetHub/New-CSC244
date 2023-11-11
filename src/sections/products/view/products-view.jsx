@@ -1,21 +1,22 @@
 import Axios from "axios";
 import { useState,useEffect } from 'react';
 
-// import { Box } from '@mui/system';
+import { Box } from '@mui/system';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
 import Container from '@mui/material/Container';
+import TextField from '@mui/material/TextField';
 import TableBody from '@mui/material/TableBody';
 import Typography from '@mui/material/Typography';
-// import DialogTitle from '@mui/material/DialogTitle';
-// import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
 import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
 // import DialogContentText from '@mui/material/DialogContentText';
-
-
 
 // {import { users } from 'src/_mock/user';}
 
@@ -33,6 +34,45 @@ import { emptyRows, applyFilter, getComparator } from 'src/sections/user/utils';
 
  export default function UserPage() {
    const [data, setData] = useState([]);
+   const [openNew, setOpenNew] = useState(false);
+
+  /* const [orderId, setOrder_id] = useState();
+   const [comment, setReview_comment_message] = useState();
+   const [title, setReview_comment_title] = useState();
+   const [score, setReview_score] = useState();
+   */
+
+   // Add data
+   const [post, setPost] = useState({
+   orderId:'',
+   score: '',
+   title: '',
+   comment:''
+
+  });
+   const handelInput = (event) => {
+      setPost({ ...post, [event.target.name]: event.target.value });
+   };
+
+const handelSubmit = (event) => {
+  event.preventDefault();
+  console.log(post)
+  Axios.post('http://localhost:8000/reviews/create', post)
+    .then((response) => console.log(response))
+    .catch((error) => console.log(error));
+};
+
+
+// close window
+     const handleClickCloseNew = () => {
+           setOpenNew(false);
+        };
+
+ const handleClickOpenNew = () => {
+         setOpenNew(true);
+     };
+
+    // get data
    const fetchData = async () => {
      try {
        const response = await Axios.get("http://localhost:8000/reviews");
@@ -46,12 +86,40 @@ import { emptyRows, applyFilter, getComparator } from 'src/sections/user/utils';
     fetchData();
   }, []);
 
+
+
+// const handleClickSubmit = async () => {
+//  try {
+ // console.log(orderId);
+  // console.log(comment);
+   // const response = await Axios.post("http://localhost:8000/reviews/create", {
+    //  orderId,
+     // comment,
+      // title,
+    //  score
+  //  });
+  //  console.log(response.data);
+    // Handle the response from the backend
+ // } catch (error) {
+  //  console.log(error);
+    // Handle the error
+ // }
+// };
+// till here
+ // const handleClickSubmit = async () =>{
+
+  //       await Axios.post ("http://localhost:8000/reviews",{orderId,comment,title,score })
+   //      .then(response => console.log(response))
+   //      .catch (error => console.log(error))
+
+
+  //  };
 //  const [data, setData]= useState([]);
   
 //  const getData= async()=>{
 //    const response= await Axios.get("http://localhost:8000/orders");
 //      setData(response.data);
-//  }
+//
 //   useEffect(()=>{ getData()},[]);
 
   const [page, setPage] = useState(0);
@@ -153,12 +221,38 @@ import { emptyRows, applyFilter, getComparator } from 'src/sections/user/utils';
       
         <Typography variant="h4">Reviews </Typography>
 
-        <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />}>
+        <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />} onClick={handleClickOpenNew}>
           Add Review
         </Button>
         
       </Stack>
+   <div>
+     <Dialog open={openNew} onClose={handleClickCloseNew} >
+                         <DialogTitle><span style={{paddingRight:'10px'}}> </span>New Review</DialogTitle>
+                         <DialogContent>
 
+                         <Box component="form" sx={{'& .MuiTextField-root': { m: 1, width: '40ch', backgroundColor:'#fff' }, paddingLeft:'0px', '& .MuiButton-root':{backgroundColor: '#0fa153'}}} noValidate autoComplete="off">
+                             <div>
+                                 <TextField id="Order_id" variant='outlined' label="Order Id" defaultValue="" name='orderId' onChange={handelInput} />
+                             </div>
+
+                             <div>
+                                 <TextField id="review_comment_message" variant='outlined' label="Review Comment Message" defaultValue="" name="comment" onChange={handelInput} />
+                             </div>
+                             <div>
+                                 <TextField id="review_comment_title" variant='outlined' label="Review Comment Title" type="string" defaultValue="" name='title' onChange={handelInput} />
+                             </div>
+                             <div>
+                             <TextField id="review_score" variant='outlined' label="Review Score" type="string" defaultValue="" name='score' onChange={handelInput} />
+                                </div>
+                         </Box>
+                         </DialogContent>
+                         <DialogActions>
+                             <Button onClick={handleClickCloseNew} style={{color:'#fff', backgroundColor:'#000000', border:'0.5px solid #004e38'}}>Cancel</Button>
+                             <Button  onClick={handelSubmit} style={{color:'#fff', backgroundColor:'#000000', border:'0.5px solid #004e38'}}>Submit</Button>
+                         </DialogActions>
+                     </Dialog>
+               </div>
       <Card>
         <UserTableToolbar
           numSelected={selected.length}
