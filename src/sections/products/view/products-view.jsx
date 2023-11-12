@@ -36,11 +36,12 @@ import { emptyRows, applyFilter, getComparator } from 'src/sections/user/utils';
    const [data, setData] = useState([]);
    const [openNew, setOpenNew] = useState(false);
 
-  /* const [orderId, setOrder_id] = useState();
+  /*
    const [comment, setReview_comment_message] = useState();
    const [title, setReview_comment_title] = useState();
    const [score, setReview_score] = useState();
    */
+  // const [orderId, setOrderId] = useState();
 
    // Add data
    const [post, setPost] = useState({
@@ -86,6 +87,17 @@ const handelSubmit = (event) => {
     fetchData();
   }, []);
 
+// delete item
+const handleDelete = (orderId,creationDate) => {
+
+  Axios.post('http://localhost:8000/reviews/delete',{orderId,creationDate})
+    .then((response) => {
+      console.log(response);
+      // Refresh the data after deletion
+      fetchData();
+    })
+    .catch((error) => console.log(error));
+};
 
 
 // const handleClickSubmit = async () => {
@@ -306,11 +318,12 @@ const handelSubmit = (event) => {
                      //  company={row.review_id}
                         status={row.review_score}
 
-
+                     // onDelete={() => { setOrderId(row.order_id); handleDelete(row.order_id); } } // i added this for delete
+                       onDelete={() => handleDelete(row.order_id,row.review_creation_date) }
                       selected={selected.indexOf(row.name) !== -1}
                       handleClick={(event) => handleClick(event, row.name)}
                     />
-                  ))}
+                  )) }
 
                 <TableEmptyRows
                   height={77}

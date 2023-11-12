@@ -27,6 +27,7 @@ export default function UserTableRow({
   isVerified,
   status,
   handleClick,
+  onDelete, // added for delete
 }) {
   const [open, setOpen] = useState(null);
 
@@ -37,6 +38,11 @@ export default function UserTableRow({
   const handleCloseMenu = () => {
     setOpen(null);
   };
+
+   const handleDeleteClick = () => { // added for delete
+     onDelete();
+   };
+
 
   return (
     <>
@@ -94,10 +100,17 @@ export default function UserTableRow({
           Edit
         </MenuItem>
 
-        <MenuItem onClick={handleCloseMenu} sx={{ color: 'error.main' }}>
+      {/*  <MenuItem onClick={handleCloseMenu} sx={{ color: 'error.main' }}>
           <Iconify icon="eva:trash-2-outline" sx={{ mr: 2 }} />
           Delete
-        </MenuItem>
+        </MenuItem> */}
+
+        <MenuItem onClick={handleDeleteClick} sx={{ color: 'error.main' }}>
+                  <Iconify icon="eva:trash-2-outline" sx={{ mr: 2 }} />
+                  Delete
+                </MenuItem>
+
+
       </Popover>
     </>
   );
@@ -114,5 +127,6 @@ UserTableRow.propTypes = {
   role: PropTypes.any,
   selected: PropTypes.any,
   status: PropTypes.any,
+  onDelete: PropTypes.any,
 
 };
