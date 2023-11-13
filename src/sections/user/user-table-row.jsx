@@ -27,6 +27,7 @@ export default function UserTableRow({
   isVerified,
   status,
   handleClick,
+  onEdit,
   onDelete, // added for delete
 }) {
   const [open, setOpen] = useState(null);
@@ -42,7 +43,10 @@ export default function UserTableRow({
    const handleDeleteClick = () => { // added for delete
      onDelete();
    };
-
+// Edit
+ const handleEditClick = () => {
+     onEdit();
+   };
 
   return (
     <>
@@ -95,7 +99,7 @@ export default function UserTableRow({
           sx: { width: 140 },
         }}
       >
-        <MenuItem onClick={handleCloseMenu}>
+        <MenuItem onClick={handleEditClick}>
           <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
           Edit
         </MenuItem>
@@ -128,5 +132,6 @@ UserTableRow.propTypes = {
   selected: PropTypes.any,
   status: PropTypes.any,
   onDelete: PropTypes.any,
+  onEdit: PropTypes.any,
 
 };

@@ -1,6 +1,4 @@
-import Axios from "axios";
 import PropTypes from 'prop-types';
-import { useState,useEffect } from 'react';
 
 import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
@@ -31,27 +29,11 @@ const StyledChart = styled(Chart)(({ theme }) => ({
 // ----------------------------------------------------------------------
 
 export default function AppCurrentVisits({ title, subheader, chart, ...other }) {
-  const [data, setData] = useState([]);
-   const fetchData = async () => {
-     try {
-       const response = await Axios.get("http://localhost:8000/orders");
-      setData(response.data.Items);
-    } catch (error) {
-      console.log(error);
-    }
-   };
-  
-  useEffect(() => {
-    fetchData();
-  }, []);
-  //
   const theme = useTheme();
 
-  // const { colors, series, options } = chart;
-  const { colors, options } = chart;
-  
-  // const chartSeries = series.map((i) => i.value);
-  const chartSeries = data.map((item) => item.value);
+  const { colors, series, options } = chart;
+
+  const chartSeries = series.map((i) => i.value);
 
   const chartOptions = useChart({
     chart: {
@@ -60,8 +42,7 @@ export default function AppCurrentVisits({ title, subheader, chart, ...other }) 
       },
     },
     colors,
-   // labels: series.map((i) => i.label),
-    labels: data.map((item) => item.label),
+    labels: series.map((i) => i.label),
     stroke: {
       colors: [theme.palette.background.paper],
     },
@@ -112,11 +93,9 @@ export default function AppCurrentVisits({ title, subheader, chart, ...other }) 
     </Card>
   );
 }
- // <AppCurrentVisits chart={{ series: data}} title="Chart Title" subheader="Chart Subheader" /> 
 
 AppCurrentVisits.propTypes = {
   chart: PropTypes.object,
- // chart: PropTypes.object,
   subheader: PropTypes.string,
   title: PropTypes.string,
 };

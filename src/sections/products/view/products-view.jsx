@@ -99,6 +99,27 @@ const handleDelete = (orderId,creationDate) => {
     .catch((error) => console.log(error));
 };
 
+// Edit item
+const [selectedRow, setSelectedRow] = useState( ); // New state variable
+const handleEdit = (orderId, title, score, comment,creationDate) => {
+// setSelectedRow({ orderId, title, score, comment }); // Set the selected row for editing
+ setSelectedRow({orderId} ); // Set the selected row for editing
+ // send the updated items to backend
+   Axios.post('http://localhost:8000/reviews/edit', { post,creationDate})
+      .then((response) => {
+             console.log(response);
+             fetchData();
+           //  setSelectedRow(null); // Clear the selected row
+            setSelectedRow(''); // Clear the selected row
+           })
+     .catch((error) => console.log(error));
+
+
+ // setSelectedRow(null); // Clear the selected row
+handleClickOpenNew();
+};
+
+
 
 // const handleClickSubmit = async () => {
 //  try {
@@ -245,7 +266,7 @@ const handleDelete = (orderId,creationDate) => {
 
                          <Box component="form" sx={{'& .MuiTextField-root': { m: 1, width: '40ch', backgroundColor:'#fff' }, paddingLeft:'0px', '& .MuiButton-root':{backgroundColor: '#0fa153'}}} noValidate autoComplete="off">
                              <div>
-                                 <TextField id="Order_id" variant='outlined' label="Order Id" defaultValue="" name='orderId' onChange={handelInput} />
+                                 <TextField id="Order_id" variant='outlined' label="Order Id" defaultValue="" value={selectedRow?.orderId || ''} name='orderId' onChange={handelInput} />
                              </div>
 
                              <div>
@@ -261,7 +282,8 @@ const handleDelete = (orderId,creationDate) => {
                          </DialogContent>
                          <DialogActions>
                              <Button onClick={handleClickCloseNew} style={{color:'#fff', backgroundColor:'#000000', border:'0.5px solid #004e38'}}>Cancel</Button>
-                             <Button  onClick={handelSubmit} style={{color:'#fff', backgroundColor:'#000000', border:'0.5px solid #004e38'}}>Submit</Button>
+                             <Button  onClick={handelSubmit} style={{color:'#fff', backgroundColor:'#000000', border:'0.5px solid #004e38'}}>Add</Button>
+                             <Button  onClick={handleEdit} style={{color:'#fff', backgroundColor:'#000000', border:'0.5px solid #004e38'}}>Edit</Button>
                          </DialogActions>
                      </Dialog>
                </div>
@@ -318,7 +340,7 @@ const handleDelete = (orderId,creationDate) => {
                      //  company={row.review_id}
                         status={row.review_score}
 
-                     // onDelete={() => { setOrderId(row.order_id); handleDelete(row.order_id); } } // i added this for delete
+                    onEdit={() => handleEdit(row.order_id,row.review_comment_title,row.review_score,row.review_comment_message,row.review_creation_date) }
                        onDelete={() => handleDelete(row.order_id,row.review_creation_date) }
                       selected={selected.indexOf(row.name) !== -1}
                       handleClick={(event) => handleClick(event, row.name)}
